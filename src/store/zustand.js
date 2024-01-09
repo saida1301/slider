@@ -1,5 +1,8 @@
 import axios from "axios";
 import { create } from "zustand";
+import { MMKV } from 'react-native-mmkv'
+
+export const storage = new MMKV()
 
 const initialState = {
   loading: false,
@@ -7,6 +10,7 @@ const initialState = {
   error: false,
   data: null,
   errorData: null,
+  favorites: [],
 };
 
 export const useGetData = create((set, get) => ({
@@ -23,4 +27,10 @@ export const useGetData = create((set, get) => ({
       set({ ...initialState, error: true, errorData: err.message });
     }
   },
+  addFavorite: (payload) => set((state) => {
+    const updatedFavorites = [...state.favorites, payload];
+    storage.set('favorites', JSON.stringify(updatedFavorites));
+    return { favorites: updatedFavorites };
+}),
+
 }));

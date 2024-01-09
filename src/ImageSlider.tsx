@@ -1,19 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { View, Image, ActivityIndicator, FlatList } from 'react-native';
+import { View, Image, ActivityIndicator, FlatList, TouchableOpacity } from 'react-native';
 import axios from 'axios';
 import { useWindowDimensions } from 'react-native';
 import styles from './ImageSliderStyles'; 
 import { useGetData } from './store/zustand';
+import { MMKV } from 'react-native-mmkv'
+
+export const storage = new MMKV()
 
 const ImageSlider = () => {
 
   const [loading, setLoading] = useState(true);
   const getData = useGetData();
+  const { favorites, addFavorite } = useGetData();
   useEffect(() => {
     getData.execute();
   }, []);
 console.log(getData);
-
+const handleAddFavorite = (payload: any) => {
+  getData.addFavorite(payload);
+  const jsonUser = storage.getString('favorites')
+  console.log(jsonUser,'added');
+};
 
   const { width } = useWindowDimensions();
   const imageSize = width * 0.8;
@@ -24,9 +32,11 @@ console.log(getData);
      const marginRight = index === getData.length - 1 ? (width - imageSize) / 2 : spacing / 2;
 
     return (
-      <View style={[styles.imageContainer,{marginLeft,marginRight }]}>
+    <TouchableOpacity onPress={() => handleAddFavorite(item)}>
+        <View style={[styles.imageContainer,{marginLeft,marginRight }]}>
         <Image source={{ uri: item }} style={styles.image} resizeMode="cover" />
       </View>
+    </TouchableOpacity>
     );
   };
 
